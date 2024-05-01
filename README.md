@@ -63,10 +63,7 @@ npm run start
 
 2\. Enable Mercadopago in a region in the admin. You can refer to [this User Guide](https://docs.medusajs.com/user-guide/regions/providers) to learn how to do that. Alternatively, you can use the [Admin APIs](https://docs.medusajs.com/api/admin#tag/Region/operation/PostRegionsRegion).
 
-3\. Place an order using a storefront or the [Store APIs](https://docs.medusajs.com/api/store). You should be able to use Stripe as a payment method.
+3\. Place an order using a storefront or the [Store APIs](https://docs.medusajs.com/api/store). You should be able to use Mercadopago as a payment method.
 
 ---
 
-## Additional Resources
-
-- [Stripe Plugin Documentation](https://docs.medusajs.com/plugins/payment/stripe)
