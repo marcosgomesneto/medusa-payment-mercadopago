@@ -1,11 +1,11 @@
 {
-    "name": "medusa-payment-mercadopago",
+    "name": "@marcosgn/medusa-payment-mercadopago",
     "version": "1.0.0",
     "description": "Mercadopago Transparent Checkout Provider for Medusa Commerce accept creditcard and pix payments",
     "main": "dist/index.js",
     "repository": {
         "type": "git",
-        "url": "https://github.com/marcosgomesneto/medusa-payment-mercadopago.git"
+        "url": "git+https://github.com/marcosgomesneto/medusa-payment-mercadopago.git"
     },
     "files": [
         "dist"
