@@ -1,4 +1,6 @@
-![medusaimage](https://github.com/marcosgomesneto/marcosgomesneto/blob/main/images/mercadopago-medusajs.png?raw=true)
+<p align="center">
+  <img src="https://github.com/marcosgomesneto/marcosgomesneto/blob/main/images/mercadopago-medusajs.png?raw=true"/>
+</p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@marcosgn/medusa-payment-mercadopago"><img src="https://badgen.net/npm/v/@marcosgn/medusa-payment-mercadopago" alt="npm package"></a>
