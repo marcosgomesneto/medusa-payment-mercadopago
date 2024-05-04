@@ -24,6 +24,7 @@ abstract class MercadopagoBase extends AbstractPaymentProcessor {
   protected cartService: CartService;
 
   protected constructor(container: any, options: MercadopagoOptions) {
+    console.log("Contructino 22....................");
     super(container, options);
     this.options = options;
     console.log("MercadoPAgoBase Instance....1", options);

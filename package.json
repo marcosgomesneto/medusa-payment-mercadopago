@@ -10,9 +10,10 @@
     "author": "Marcos Gomes Neto <marcosgomesneto@gmail.com>",
     "license": "MIT",
     "scripts": {
+        "prebuild": "rimraf dist",
         "prepare": "cross-env NODE_ENV=production yarn run build",
         "test": "jest --passWithNoTests src",
-        "build": "tsc",
+        "build": "yarn prebuild && tsc",
         "watch": "tsc --watch"
     },
     "devDependencies": {

@@ -18,6 +18,7 @@ class MercadopagoService extends TransactionBaseService {
   private clientEmitters: { [key: string]: EventEmitter } = {};
 
   constructor(container: any, options: MercadopagoOptions) {
+    console.log("Contructino....................");
     super(container, options);
     this.options = options;
     console.log("options", options);
