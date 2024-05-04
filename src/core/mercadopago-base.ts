@@ -8,25 +8,30 @@ import {
   PaymentSessionStatus,
   isPaymentProcessorError,
 } from "@medusajs/medusa";
-import { MercadoPagoConfig, Payment } from "mercadopago";
 import { PaymentCreateRequest } from "mercadopago/dist/clients/payment/create/types";
 import { deepMerge } from "./utils";
 import { PaymentResponse } from "mercadopago/dist/clients/payment/commonTypes";
 import MercadopagoService from "../services/mercadopago";
+import { MercadopagoOptions } from "../types";
 
-interface RetrivePayment extends PaymentResponse, Record<string, unknown> { }
+interface RetrivePayment extends PaymentResponse, Record<string, unknown> {}
 
 abstract class MercadopagoBase extends AbstractPaymentProcessor {
   static identifier = "";
 
+  protected readonly options: MercadopagoOptions;
   protected mpService: MercadopagoService;
   protected cartService: CartService;
 
-  protected constructor(container: any) {
-    super(container);
-    console.log("MercadoPAgoBase Instance....");
+  protected constructor(container: any, options: MercadopagoOptions) {
+    super(container, options);
+    this.options = options;
+    console.log("MercadoPAgoBase Instance....1", options);
+    console.log("MercadoPAgoBase Instance....2");
     this.cartService = container.cartService;
+    console.log("MercadoPAgoBase Instance....3");
     this.mpService = container.mercadopagoService;
+    console.log("MercadoPAgoBase Instance....4");
   }
 
   async getPaymentStatus(
@@ -144,21 +149,22 @@ abstract class MercadopagoBase extends AbstractPaymentProcessor {
     return deepMerge<PaymentCreateRequest>(
       {
         external_reference: cart.id,
-        transaction_amount: cart.payment_session ? Number(cart.payment_session.amount) / 100 : 0,
-        ...(process.env.MERCADOPAGO_WEBHOOK_URL && {
-          notification_url: process.env.MERCADOPAGO_WEBHOOK_URL,
-        }),
+        transaction_amount: cart.payment_session
+          ? Number(cart.payment_session.amount) / 100
+          : 0,
+
+        notification_url: this.options.webhookUrl,
         payer: {
           email: cart.email,
-          first_name: cart.shipping_address?.first_name ?? '',
-          last_name: cart.shipping_address?.last_name ?? '',
+          first_name: cart.shipping_address?.first_name ?? "",
+          last_name: cart.shipping_address?.last_name ?? "",
           phone: {
-            number: cart.shipping_address?.phone ?? '',
+            number: cart.shipping_address?.phone ?? "",
           },
           address: {
-            city: cart.shipping_address?.city ?? '',
-            zip_code: cart.shipping_address?.postal_code ?? '',
-            street_name: cart.shipping_address?.address_1 ?? '',
+            city: cart.shipping_address?.city ?? "",
+            zip_code: cart.shipping_address?.postal_code ?? "",
+            street_name: cart.shipping_address?.address_1 ?? "",
           },
         },
       },

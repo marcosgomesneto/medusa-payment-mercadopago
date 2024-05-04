@@ -37,7 +37,7 @@ class MercadopagoPixService extends MercadopagoBase {
       payment_method_id: "pix",
       payer: {
         identification: {
-          number: currentCart.shipping_address.metadata?.document as
+          number: currentCart.shipping_address?.metadata?.document as
             | string
             | undefined,
           type: "CPF",
@@ -51,7 +51,7 @@ class MercadopagoPixService extends MercadopagoBase {
         body: requestData,
         requestOptions: {
           idempotencyKey:
-            currentCart.payment_session.id + requestData.transaction_amount,
+            currentCart.payment_session?.id ?? '' + requestData.transaction_amount,
         },
       });
 
@@ -63,9 +63,9 @@ class MercadopagoPixService extends MercadopagoBase {
           ...paymentSessionData,
           id: processPayment.id,
           internalStatus: processPayment.status,
-          qrCode: processPayment.point_of_interaction.transaction_data.qr_code,
+          qrCode: processPayment.point_of_interaction?.transaction_data?.qr_code,
           qrCodeBase64:
-            processPayment.point_of_interaction.transaction_data.qr_code_base64,
+            processPayment.point_of_interaction?.transaction_data?.qr_code_base64,
         },
       };
     } catch (e) {

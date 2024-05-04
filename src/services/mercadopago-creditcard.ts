@@ -5,7 +5,7 @@ import {
 } from "@medusajs/medusa";
 import MercadopagoBase from "../core/mercadopago-base";
 import { EntityManager } from "typeorm";
-import { PaymentProviderKeys } from "../types";
+import { MercadopagoOptions, PaymentProviderKeys } from "../types";
 
 interface MercadoPagoPaymentFormData extends Record<string, unknown> {
   id?: number;
@@ -24,8 +24,8 @@ class MercadopagoCreditcardService extends MercadopagoBase {
   protected orderService: OrderService;
   protected manager: EntityManager;
 
-  constructor({ orderService, manager }) {
-    super({ orderService, manager });
+  constructor({ orderService, manager }, options: MercadopagoOptions) {
+    super({ orderService, manager }, options);
 
     this.orderService = orderService;
     this.manager = manager;

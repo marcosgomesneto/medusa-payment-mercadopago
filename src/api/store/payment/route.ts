@@ -1,6 +1,6 @@
 import { MedusaRequest, MedusaResponse, PaymentStatus } from "@medusajs/medusa";
-import MercadopagoService from "src/services/mercadopago";
-import MercadopagoPixService from "src/services/mercadopago-pix";
+import MercadopagoService from "../../../services/mercadopago";
+
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const clientId = req.query.id as string | undefined;

@@ -6,7 +6,6 @@ import {
   type MedusaRequest,
   type MedusaResponse,
 } from "@medusajs/medusa";
-import crypto from "crypto";
 import { PaymentResponse } from "mercadopago/dist/clients/payment/commonTypes";
 import { EntityManager } from "typeorm";
 import MercadopagoService from "../../../services/mercadopago";
@@ -14,11 +13,11 @@ import MercadopagoPixService from "../../../services/mercadopago-pix";
 
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   try {
-    const valid = validateSignature(req);
-    if (!valid) throw new Error("Invalid signature");
-
     const mercadopagoService =
       req.scope.resolve<MercadopagoService>("mercadopagoService");
+
+    if (!mercadopagoService.validateSignature(req))
+      throw new Error("Invalid webhook signature");
 
     const event = req.body.action;
 
@@ -40,44 +39,6 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
       message: e.message,
       success: false,
     });
-  }
-};
-
-const validateSignature = (req: MedusaRequest) => {
-  try {
-    //if no secret is set, we allow all requests
-    if (process.env.MERCADOPAGO_WEBHOOK_SECRET === undefined) return true;
-
-    const xSignature = req.headers["x-signature"] as string;
-    const xRequestId = req.headers["x-request-id"];
-    const dataID = req.body.data?.id;
-    const parts = xSignature.split(",");
-
-    const result = parts.reduce(
-      (acc, part) => {
-        const [key, value] = part.split("=").map((str) => str.trim());
-        if (key === "ts") {
-          acc.ts = value;
-        } else if (key === "v1") {
-          acc.hash = value;
-        }
-        return acc;
-      },
-      { ts: undefined, hash: undefined } as { ts?: string; hash?: string }
-    );
-
-    const { ts, hash } = result;
-    const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
-    const manifest = `id:${dataID};request-id:${xRequestId};ts:${ts};`;
-    const hmac = crypto.createHmac("sha256", secret);
-
-    hmac.update(manifest);
-
-    const sha = hmac.digest("hex");
-
-    return sha === hash;
-  } catch (e) {
-    return false;
   }
 };
 
