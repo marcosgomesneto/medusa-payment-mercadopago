@@ -10,8 +10,12 @@ import { PaymentResponse } from "mercadopago/dist/clients/payment/commonTypes";
 import { EntityManager } from "typeorm";
 import MercadopagoService from "../../../services/mercadopago";
 import MercadopagoPixService from "../../../services/mercadopago-pix";
+import { MercadopagoWebhookRequest } from "../../../types";
 
-export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
+export const POST = async (
+  req: MedusaRequest<MercadopagoWebhookRequest>,
+  res: MedusaResponse
+) => {
   try {
     const mercadopagoService =
       req.scope.resolve<MercadopagoService>("mercadopagoService");
@@ -25,16 +29,13 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
       id: req.body.data.id,
     });
 
-    console.log("Webhook received", paymentData, event);
-
     if (paymentData.payment_method_id === "pix")
-      await processPixPayment(req, res, paymentData, event);
+      await processPixPayment(req, paymentData, event);
 
     res.json({
       success: true,
     });
   } catch (e) {
-    console.log("Error processing webhook", e.message);
     res.json({
       message: e.message,
       success: false,
@@ -44,11 +45,9 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
 
 const processPixPayment = async (
   req: MedusaRequest,
-  res: MedusaResponse,
   data: PaymentResponse,
   event: string
 ) => {
-  console.log("Processing pix payment....");
   const mercadopagoPixService = req.scope.resolve<MercadopagoPixService>(
     "mercadopagoPixService"
   );
@@ -69,23 +68,17 @@ const processPixPayment = async (
   await manager.transaction(async () => {
     switch (event) {
       case "payment.updated":
-        console.log("Payment updated....");
         if (!order) {
-          console.log("Authorize cart....");
           await cartService.withTransaction(manager).authorizePayment(cartId, {
             action: "webhook",
           });
-          console.log("Creating order from cart....");
           const order = await orderService
             .withTransaction(manager)
             .createFromCart(cartId);
-          console.log("Capturing payment....", order.payment_status);
           if (order.payment_status !== PaymentStatus.CAPTURED) {
-            console.log("Capturing payment 2....");
             await orderService
               .withTransaction(manager)
               .capturePayment(order.id);
-            console.log("Emiting....");
             mercadopagoService.emitClientEvent(cartId, PaymentStatus.CAPTURED);
           }
         }

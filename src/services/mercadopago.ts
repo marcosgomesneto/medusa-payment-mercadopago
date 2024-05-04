@@ -6,10 +6,10 @@ import {
 import { MercadoPagoConfig, Payment } from "mercadopago";
 import { Lifetime } from "awilix";
 import EventEmitter from "events";
-import { MercadopagoOptions } from "../types";
+import { MercadopagoOptions, MercadopagoWebhookRequest } from "../types";
 import crypto from "crypto";
 
-class MercadopagoService extends TransactionBaseService {
+class MercadopagoService {
   static LIFE_TIME = Lifetime.SINGLETON;
 
   protected readonly options: MercadopagoOptions;
@@ -18,11 +18,7 @@ class MercadopagoService extends TransactionBaseService {
   private clientEmitters: { [key: string]: EventEmitter } = {};
 
   constructor(container: any, options: MercadopagoOptions) {
-    console.log("Contructino....................");
-    super(container, options);
     this.options = options;
-    console.log("options", options);
-    console.log("New instance for mercadopago.........");
     this.client = new MercadoPagoConfig({
       accessToken: options.accessToken,
       options: { timeout: 5000 },
@@ -30,13 +26,15 @@ class MercadopagoService extends TransactionBaseService {
     this.payment = new Payment(this.client);
   }
 
-  validateSignature = (req: MedusaRequest): boolean => {
+  validateSignature = (
+    req: MedusaRequest<MercadopagoWebhookRequest>
+  ): boolean => {
     try {
       if (!this.options.webhookSecret) return true;
 
       const xSignature = req.headers["x-signature"] as string;
       const xRequestId = req.headers["x-request-id"];
-      const dataID = req.body.data?.id;
+      const dataID = req.body.data.id;
       const parts = xSignature.split(",");
 
       const result = parts.reduce(
@@ -74,9 +72,7 @@ class MercadopagoService extends TransactionBaseService {
   }
 
   emitClientEvent(clientId: string, status: PaymentStatus) {
-    console.log("Emiting client event....", clientId, status);
     if (this.clientEmitters[clientId]) {
-      console.log("Emiting client event w....");
       this.clientEmitters[clientId].emit("status", {
         status,
       });

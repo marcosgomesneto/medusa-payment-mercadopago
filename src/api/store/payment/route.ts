@@ -1,7 +1,6 @@
 import { MedusaRequest, MedusaResponse, PaymentStatus } from "@medusajs/medusa";
 import MercadopagoService from "../../../services/mercadopago";
 
-
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const clientId = req.query.id as string | undefined;
   if (!clientId) {
@@ -21,17 +20,15 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         status: "pending",
       })}\n\n`
     );
-  }, 1000);
+  }, 5000);
 
   const emitter = mercadopagoService.createClientEmitter(clientId);
 
   emitter.on("status", (data: { status: PaymentStatus }) => {
-    console.log("2..2.emitting....", data);
     res.write(`data: ${JSON.stringify(data)}\n\n`);
   });
 
   req.on("close", () => {
-    console.log("end....");
     clearInterval(ping);
     mercadopagoService.removeClientEmitter(clientId);
     res.end();

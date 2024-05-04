@@ -18,7 +18,6 @@ class MercadopagoPixService extends MercadopagoBase {
     | PaymentProcessorError
     | { status: PaymentSessionStatus; data: Record<string, unknown> }
   > {
-    console.log("Authorize Payment....", paymentSessionData, context);
     const currentCart = await this.cartService.retrieve(context.cart_id, {
       relations: ["payment_sessions", "shipping_address"],
     });
@@ -46,16 +45,14 @@ class MercadopagoPixService extends MercadopagoBase {
     });
 
     try {
-      console.info("MecadoPago Request...", requestData);
       const processPayment = await this.mpService.payment.create({
         body: requestData,
         requestOptions: {
           idempotencyKey:
-            currentCart.payment_session?.id ?? '' + requestData.transaction_amount,
+            currentCart.payment_session?.id ??
+            "" + requestData.transaction_amount,
         },
       });
-
-      console.log("recebeu o requesst....", processPayment);
 
       return {
         status: PaymentSessionStatus.REQUIRES_MORE,
@@ -63,13 +60,14 @@ class MercadopagoPixService extends MercadopagoBase {
           ...paymentSessionData,
           id: processPayment.id,
           internalStatus: processPayment.status,
-          qrCode: processPayment.point_of_interaction?.transaction_data?.qr_code,
+          qrCode:
+            processPayment.point_of_interaction?.transaction_data?.qr_code,
           qrCodeBase64:
-            processPayment.point_of_interaction?.transaction_data?.qr_code_base64,
+            processPayment.point_of_interaction?.transaction_data
+              ?.qr_code_base64,
         },
       };
     } catch (e) {
-      console.info("MecadoPagoErro", e);
       throw new Error("errr...");
     }
   }

@@ -24,15 +24,10 @@ abstract class MercadopagoBase extends AbstractPaymentProcessor {
   protected cartService: CartService;
 
   protected constructor(container: any, options: MercadopagoOptions) {
-    console.log("Contructino 22....................");
     super(container, options);
     this.options = options;
-    console.log("MercadoPAgoBase Instance....1", options);
-    console.log("MercadoPAgoBase Instance....2");
     this.cartService = container.cartService;
-    console.log("MercadoPAgoBase Instance....3");
     this.mpService = container.mercadopagoService;
-    console.log("MercadoPAgoBase Instance....4");
   }
 
   async getPaymentStatus(
@@ -53,7 +48,6 @@ abstract class MercadopagoBase extends AbstractPaymentProcessor {
     context: PaymentProcessorContext
   ): Promise<PaymentProcessorError | PaymentProcessorSessionResponse> {
     //when user select payment method with setPaymentSession in store front, Here you can even give a cart discount depending on the method
-    console.info("Initiate Payment...", context);
     return {
       session_data: {},
     };
@@ -64,7 +58,6 @@ abstract class MercadopagoBase extends AbstractPaymentProcessor {
   ): Promise<RetrivePayment | PaymentProcessorError> {
     try {
       //Called automatically by authorizePayment when status is authorized
-      console.log("Retrive Payment with session...", paymentSessionData);
       const paymentResponse = await this.mpService.payment.get({
         id: paymentSessionData.id as string,
       });
@@ -176,7 +169,6 @@ abstract class MercadopagoBase extends AbstractPaymentProcessor {
   async capturePayment(
     paymentSessionData: Record<string, unknown>
   ): Promise<Record<string, unknown> | PaymentProcessorError> {
-    console.info("Captureeeee payment....", paymentSessionData);
     return {
       ...paymentSessionData,
     };

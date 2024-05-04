@@ -29,8 +29,6 @@ class MercadopagoCreditcardService extends MercadopagoBase {
 
     this.orderService = orderService;
     this.manager = manager;
-
-    console.info("MercadoPagoPaymentService constructor");
   }
 
   async authorizePayment(
@@ -46,8 +44,6 @@ class MercadopagoCreditcardService extends MercadopagoBase {
 
     const isPix = paymentSessionData.paymentMethodId === "pix";
 
-    console.info("Authorize Payment?..", paymentSessionData, currentCart);
-
     const requestData = this.generatePaymentFromCart(currentCart, {
       token: paymentSessionData.token,
       installments: Number(paymentSessionData.installment),
@@ -62,16 +58,15 @@ class MercadopagoCreditcardService extends MercadopagoBase {
     });
 
     try {
-      console.info("MecadoPago Request", requestData);
       const processPayment = await this.mpService.payment.create({
         body: requestData,
         requestOptions: {
           idempotencyKey:
-            currentCart.payment_session?.id ?? '' + requestData.transaction_amount,
+            currentCart.payment_session?.id ??
+            "" + requestData.transaction_amount,
         },
       });
 
-      console.info("MecadoPago Response", processPayment);
       return {
         status: this.getStatus(processPayment.status),
         data: {
@@ -82,12 +77,12 @@ class MercadopagoCreditcardService extends MercadopagoBase {
             qrCode:
               processPayment.point_of_interaction?.transaction_data?.qr_code,
             qrCodeBase64:
-              processPayment.point_of_interaction?.transaction_data?.qr_code_base64,
+              processPayment.point_of_interaction?.transaction_data
+                ?.qr_code_base64,
           }),
         },
       };
     } catch (e) {
-      console.info("MecadoPagoErro", e);
       throw new Error("errr...");
     }
   }
