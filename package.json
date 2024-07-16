@@ -1,6 +1,6 @@
 {
     "name": "@marcosgn/medusa-payment-mercadopago",
-    "version": "1.0.1",
+    "version": "1.0.3",
     "description": "Mercadopago Transparent Checkout Provider for Medusa Commerce accept creditcard and pix payments",
     "main": "dist/index.js",
     "repository": {
@@ -17,6 +17,8 @@
         "prepare": "cross-env NODE_ENV=production yarn run build",
         "test": "jest --passWithNoTests src",
         "build": "yarn prebuild && tsc",
+        "build:local": "yarn dev && yarn prebuild && tsc && mv ./node_modules/@medusajs/medusa ./",
+        "dev": "[ -d ./medusa ] && mv ./medusa ./node_modules/@medusajs || echo 'Medusa not found'",
         "watch": "tsc --watch"
     },
     "devDependencies": {

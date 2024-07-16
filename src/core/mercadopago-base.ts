@@ -33,6 +33,8 @@ abstract class MercadopagoBase extends AbstractPaymentProcessor {
   async getPaymentStatus(
     paymentSessionData: Record<string, unknown>
   ): Promise<PaymentSessionStatus> {
+    //When retrivePayment is called, this method is called to get the status of the payment
+
     const id = paymentSessionData.id as number;
 
     const paymentIntent = await this.mpService.payment.get({

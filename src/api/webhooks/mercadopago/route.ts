@@ -9,7 +9,6 @@ import {
 import { PaymentResponse } from "mercadopago/dist/clients/payment/commonTypes";
 import { EntityManager } from "typeorm";
 import MercadopagoService from "../../../services/mercadopago";
-import MercadopagoPixService from "../../../services/mercadopago-pix";
 import { MercadopagoWebhookRequest } from "../../../types";
 
 export const POST = async (
@@ -29,8 +28,7 @@ export const POST = async (
       id: req.body.data.id,
     });
 
-    if (paymentData.payment_method_id === "pix")
-      await processPixPayment(req, paymentData, event);
+    await processPayment(req, paymentData, event);
 
     res.json({
       success: true,
@@ -43,14 +41,11 @@ export const POST = async (
   }
 };
 
-const processPixPayment = async (
+const processPayment = async (
   req: MedusaRequest,
   data: PaymentResponse,
   event: string
 ) => {
-  const mercadopagoPixService = req.scope.resolve<MercadopagoPixService>(
-    "mercadopagoPixService"
-  );
   const orderService = req.scope.resolve<OrderService>("orderService");
   const cartService = req.scope.resolve<CartService>("cartService");
   const mercadopagoService =
@@ -75,6 +70,13 @@ const processPixPayment = async (
           const order = await orderService
             .withTransaction(manager)
             .createFromCart(cartId);
+          if (order.payment_status !== PaymentStatus.CAPTURED) {
+            await orderService
+              .withTransaction(manager)
+              .capturePayment(order.id);
+            mercadopagoService.emitClientEvent(cartId, PaymentStatus.CAPTURED);
+          }
+        } else {
           if (order.payment_status !== PaymentStatus.CAPTURED) {
             await orderService
               .withTransaction(manager)

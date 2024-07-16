@@ -11,6 +11,14 @@ import EventEmitter from "events";
 class MercadopagoPixService extends MercadopagoBase {
   static identifier = PaymentProviderKeys.PIX;
 
+  async getPaymentStatus(
+    paymentSessionData: Record<string, unknown>
+  ): Promise<PaymentSessionStatus> {
+    //When retrivePayment is called, this method is called to get the status of the payment
+
+    return PaymentSessionStatus.AUTHORIZED;
+  }
+
   async authorizePayment(
     paymentSessionData: Record<string, unknown>,
     context: { cart_id: string; action?: "webhook" }
@@ -55,7 +63,7 @@ class MercadopagoPixService extends MercadopagoBase {
       });
 
       return {
-        status: PaymentSessionStatus.REQUIRES_MORE,
+        status: PaymentSessionStatus.AUTHORIZED,
         data: {
           ...paymentSessionData,
           id: processPayment.id,
@@ -68,8 +76,35 @@ class MercadopagoPixService extends MercadopagoBase {
         },
       };
     } catch (e) {
-      throw new Error("errr...");
+      throw new Error(e.message);
     }
+  }
+
+  async deletePayment(
+    paymentSessionData: Record<string, unknown>
+  ): Promise<Record<string, unknown> | PaymentProcessorError> {
+    return {};
+  }
+
+  async capturePayment(
+    paymentSessionData: Record<string, unknown>
+  ): Promise<Record<string, unknown> | PaymentProcessorError> {
+    const id = paymentSessionData.id as number;
+
+    const paymentIntent = await this.mpService.payment.get({
+      id: id,
+    });
+
+    if (!paymentIntent.status) throw new Error("Payment not found");
+
+    const status = this.getStatus(paymentIntent.status);
+
+    if (status !== PaymentSessionStatus.AUTHORIZED)
+      throw new Error("Payment not authorized");
+
+    return {
+      ...paymentSessionData,
+    };
   }
 }
 

@@ -1,11 +1,6 @@
-import {
-  PaymentProcessorError,
-  PaymentSessionStatus,
-  OrderService,
-} from "@medusajs/medusa";
+import { PaymentProcessorError, PaymentSessionStatus } from "@medusajs/medusa";
 import MercadopagoBase from "../core/mercadopago-base";
-import { EntityManager } from "typeorm";
-import { MercadopagoOptions, PaymentProviderKeys } from "../types";
+import { PaymentProviderKeys } from "../types";
 
 interface MercadoPagoPaymentFormData extends Record<string, unknown> {
   id?: number;
@@ -21,16 +16,6 @@ interface MercadoPagoPaymentFormData extends Record<string, unknown> {
 class MercadopagoCreditcardService extends MercadopagoBase {
   static identifier = PaymentProviderKeys.CREDIT_CARD;
 
-  protected orderService: OrderService;
-  protected manager: EntityManager;
-
-  constructor({ orderService, manager }, options: MercadopagoOptions) {
-    super({ orderService, manager }, options);
-
-    this.orderService = orderService;
-    this.manager = manager;
-  }
-
   async authorizePayment(
     paymentSessionData: MercadoPagoPaymentFormData,
     context: { cart_id: string }
@@ -41,8 +26,6 @@ class MercadopagoCreditcardService extends MercadopagoBase {
     const currentCart = await this.cartService.retrieve(context.cart_id, {
       relations: ["payment_sessions", "shipping_address"],
     });
-
-    const isPix = paymentSessionData.paymentMethodId === "pix";
 
     const requestData = this.generatePaymentFromCart(currentCart, {
       token: paymentSessionData.token,
@@ -73,18 +56,17 @@ class MercadopagoCreditcardService extends MercadopagoBase {
           ...paymentSessionData,
           id: processPayment.id,
           internalStatus: processPayment.status,
-          ...(isPix && {
-            qrCode:
-              processPayment.point_of_interaction?.transaction_data?.qr_code,
-            qrCodeBase64:
-              processPayment.point_of_interaction?.transaction_data
-                ?.qr_code_base64,
-          }),
         },
       };
     } catch (e) {
-      throw new Error("errr...");
+      throw new Error(e.message);
     }
+  }
+
+  async deletePayment(
+    paymentSessionData: Record<string, unknown>
+  ): Promise<Record<string, unknown> | PaymentProcessorError> {
+    return {};
   }
 }
 
