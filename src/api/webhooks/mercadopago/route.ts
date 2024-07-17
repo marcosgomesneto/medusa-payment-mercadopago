@@ -78,20 +78,22 @@ const processPayment = async (
           }
         } else {
           if (order.payment_status !== PaymentStatus.CAPTURED) {
-            try {
-              await orderService
-                .withTransaction(manager)
-                .capturePayment(order.id);
-              mercadopagoService.emitClientEvent(
-                cartId,
-                PaymentStatus.CAPTURED
-              );
-            } catch (e) {
-              throw new Error("Payment could not be captured (no paid)");
-            }
+            await orderService
+              .withTransaction(manager)
+              .capturePayment(order.id);
+            mercadopagoService.emitClientEvent(cartId, PaymentStatus.CAPTURED);
           }
         }
 
+        break;
+      case "payment.created":
+        if (
+          order &&
+          order.payments[0].provider_id === "mercadopago-creditcard"
+        ) {
+          await orderService.withTransaction(manager).capturePayment(order.id);
+          mercadopagoService.emitClientEvent(cartId, PaymentStatus.CAPTURED);
+        }
         break;
       default:
         return;

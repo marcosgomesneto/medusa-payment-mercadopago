@@ -171,6 +171,19 @@ abstract class MercadopagoBase extends AbstractPaymentProcessor {
   async capturePayment(
     paymentSessionData: Record<string, unknown>
   ): Promise<Record<string, unknown> | PaymentProcessorError> {
+    const id = paymentSessionData.id as number;
+
+    const paymentIntent = await this.mpService.payment.get({
+      id: id,
+    });
+
+    if (!paymentIntent.status) throw new Error("Payment not found");
+
+    const status = this.getStatus(paymentIntent.status);
+
+    if (status !== PaymentSessionStatus.AUTHORIZED)
+      throw new Error("Payment not authorized");
+
     return {
       ...paymentSessionData,
     };

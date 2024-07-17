@@ -1,6 +1,6 @@
 {
     "name": "@marcosgn/medusa-payment-mercadopago",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "description": "Mercadopago Transparent Checkout Provider for Medusa Commerce accept creditcard and pix payments",
     "main": "dist/index.js",
     "repository": {
