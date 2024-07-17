@@ -78,10 +78,17 @@ const processPayment = async (
           }
         } else {
           if (order.payment_status !== PaymentStatus.CAPTURED) {
-            await orderService
-              .withTransaction(manager)
-              .capturePayment(order.id);
-            mercadopagoService.emitClientEvent(cartId, PaymentStatus.CAPTURED);
+            try {
+              await orderService
+                .withTransaction(manager)
+                .capturePayment(order.id);
+              mercadopagoService.emitClientEvent(
+                cartId,
+                PaymentStatus.CAPTURED
+              );
+            } catch (e) {
+              throw new Error("Payment could not be captured (no paid)");
+            }
           }
         }
 

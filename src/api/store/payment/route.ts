@@ -25,7 +25,10 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const emitter = mercadopagoService.createClientEmitter(clientId);
 
   emitter.on("status", (data: { status: PaymentStatus }) => {
-    res.write(`data: ${JSON.stringify(data)}\n\n`);
+    if (data.status === PaymentStatus.CAPTURED) {
+      clearInterval(ping);
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    }
   });
 
   req.on("close", () => {

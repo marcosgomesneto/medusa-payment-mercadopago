@@ -48,7 +48,7 @@ yarn add @marcosgn/medusa-payment-mercadopago
 
 ```bash
 MERCADOPAGO_ACCESS_TOKEN=APP_USR...
-MERCADOPAGO_WEBHOOK_URL=http....
+MERCADOPAGO_WEBHOOK_URL=https://<your-domain>/webhooks/mercadopago
 
 # Optional, but recommended in production
 MERCADOPAGO_WEBHOOK_SECRET=5573326353c523ebbc84af5ad376b860ad5225339d05535c804974b2393d0f30
