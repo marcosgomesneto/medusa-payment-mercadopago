@@ -1,5 +1,6 @@
 import {
   CartService,
+  Logger,
   Order,
   OrderService,
   PaymentStatus,
@@ -19,14 +20,25 @@ export const POST = async (
     const mercadopagoService =
       req.scope.resolve<MercadopagoService>("mercadopagoService");
 
+    const logger = req.scope.resolve<Logger>("logger");
+
+    logger.info("Recived webhook from MercadoPago");
+    logger.info(req.body);
+    logger.info(req.headers);
+
+    logger.info("Validate webhook signature");
     if (!mercadopagoService.validateSignature(req))
       throw new Error("Invalid webhook signature");
+
+    logger.info("Validate: passed!");
 
     const event = req.body.action;
 
     const paymentData = await mercadopagoService.payment.get({
       id: req.body.data.id,
     });
+
+    logger.info("Recived payment data: passed!");
 
     await processPayment(req, paymentData, event);
 
@@ -55,7 +67,9 @@ const processPayment = async (
   if (!cartId) throw new Error("Cart id not found in payment data");
 
   const order: Order | undefined = await orderService
-    .retrieveByCartId(cartId)
+    .retrieveByCartId(cartId, {
+      relations: ["payments"],
+    })
     .catch(() => undefined);
 
   const manager = req.scope.resolve<EntityManager>("manager");
