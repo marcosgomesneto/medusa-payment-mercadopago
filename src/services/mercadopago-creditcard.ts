@@ -41,12 +41,14 @@ class MercadopagoCreditcardService extends MercadopagoBase {
     });
 
     try {
+      const idempotencyKey = `${currentCart.payment_session?.id || ""}${
+        requestData.transaction_amount
+      }${paymentSessionData.token}`;
+
       const processPayment = await this.mpService.payment.create({
         body: requestData,
         requestOptions: {
-          idempotencyKey:
-            currentCart.payment_session?.id ??
-            "" + requestData.transaction_amount,
+          idempotencyKey: idempotencyKey,
         },
       });
 
