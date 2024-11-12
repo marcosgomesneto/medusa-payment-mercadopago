@@ -10,6 +10,8 @@
 
 Receive payments on your Medusa commerce application using Mercadopago Transparent Checkout.
 
+*Note: We will soon release the Medusa 2.0 compatible version*
+
 ## Features
 
 - Authorize payments with **Credit Card** using Transparent Checkout.
